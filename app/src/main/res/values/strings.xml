@@ -1,0 +1,45 @@
+<resources>
+    <string name="app_name">The Hiker</string>
+    <string name="title_home">Home</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_my_hike">My Hikes</string>
+
+    <string name="btn_login">Login</string>
+    <string name="btn_create_account">Create Account</string>
+    <string name="btn__image_upload">Upload</string>
+    <string name="btn__image_change">Change</string>
+    <string name="btn__image_brows">Browse</string>
+    <string name="btn_create_profile">Create Profile</string>
+    <string name="btn_edit_profile">Edit Profile</string>
+
+    <string name="txt_no_account_yet">No Account Yet?</string>
+
+    <string name="hint_username">Username</string>
+    <string name="hint_password">Password</string>
+
+    <string name="message_empty_uname">Please enter your username.</string>
+    <string name="message_empty_password">Please enter your password.</string>
+
+    <string name="message_empty_fName">First Name is required.</string>
+    <string name="message_empty_lName">Last Name is required.</string>
+    <string name="message_empty_gender">Gender is required.</string>
+    <string name="message_empty_bday">Birth date is required.</string>
+    <string name="message_empty_contact">Contact No. is required.</string>
+    <string name="message_empty_motto">Motto is required.</string>
+    <string name="message_empty_email">Email is required.</string>
+    <string name="message_invalid_email">Invalid email format.</string>
+
+    <string name="message_no_record">No upcoming hike yet.</string>
+
+    <string name="snack_message_hike_deleted">Hike Deleted.</string>
+    <string name="snack_message_undo">Undo</string>
+
+    <string name="profile_save_success">Your profile was saved successfully.</string>
+    <string name="profile_update_success">Your profile was updated successfully.</string>
+
+    <string-array name="gender">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+</resources>
