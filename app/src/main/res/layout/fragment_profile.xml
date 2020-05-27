@@ -51,7 +51,6 @@
                 android:layout_marginRight="20dp"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:text="dageageawdageageawdageageawdageageawdageageawdageageawdageageaw"
                 android:textAlignment="center"
                 android:textStyle="italic" />
 
