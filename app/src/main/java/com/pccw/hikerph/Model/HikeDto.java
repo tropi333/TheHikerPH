@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import java.util.Date;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -26,14 +27,16 @@ public class HikeDto implements Parcelable {
 
     private String itinerary;
 
-    private String path_banner;
+    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
+    byte[] image_banner;
 
     private long profileId;
 
 
     public HikeDto(String eventName, String mtName, String location, String startDate,
                    String endDate, String tourGuide, Double estBudget, long elevation,
-                   long profileId, String path_banner, Long dtStartDate, Long dtEndDate) {
+                   long profileId, Long dtStartDate, Long dtEndDate,
+                   byte[] image_banner) {
 
         this.eventName = eventName;
         this.mtName = mtName;
@@ -44,9 +47,9 @@ public class HikeDto implements Parcelable {
         this.estBudget = estBudget;
         this.elevation = elevation;
         this.profileId = profileId;
-        this.path_banner = path_banner;
         this.dtStartDate = dtStartDate;
         this.dtEndDate = dtEndDate;
+        this.image_banner = image_banner;
     }
 
 
@@ -67,10 +70,11 @@ public class HikeDto implements Parcelable {
         elevation = in.readLong();
         profileId = in.readLong();
         itinerary = in.readString();
-        path_banner = in.readString();
 
         dtStartDate = in.readLong();
         dtEndDate = in.readLong();
+        image_banner = in.createByteArray();
+
     }
 
 
@@ -176,14 +180,6 @@ public class HikeDto implements Parcelable {
         this.itinerary = itinerary;
     }
 
-    public String getPath_banner() {
-        return path_banner;
-    }
-
-    public void setPath_banner(String path_banner) {
-        this.path_banner = path_banner;
-    }
-
     public Long getDtStartDate() {
         return dtStartDate;
     }
@@ -198,6 +194,14 @@ public class HikeDto implements Parcelable {
 
     public void setDtEndDate(Long dtEndDate) {
         this.dtEndDate = dtEndDate;
+    }
+
+    public byte[] getImage_banner() {
+        return image_banner;
+    }
+
+    public void setImage_banner(byte[] image_banner) {
+        this.image_banner = image_banner;
     }
 
     @Override
@@ -223,10 +227,9 @@ public class HikeDto implements Parcelable {
         parcel.writeLong(elevation);
         parcel.writeLong(profileId);
         parcel.writeString(itinerary);
-        parcel.writeString(path_banner);
         parcel.writeLong(dtStartDate);
         parcel.writeLong(dtEndDate);
-
+        parcel.writeByteArray(image_banner);
 
     }
 }

@@ -70,8 +70,6 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.i(TAG, "onCreate: ");
-
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiverAddHike,
                 new IntentFilter(Properties.BROADCAST_RECEIVER_ADD_HIKE));
 

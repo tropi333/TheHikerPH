@@ -95,10 +95,6 @@ public class MyHikeFragment extends Fragment implements MyHikeAdapter.OnMyHikeEv
 
                 refreshAdapter(hikeList);
 
-                for (HikeDto d:hikeDtos) {
-                    System.out.println("JOMAS"+d.getDtStartDate());
-
-                }
                 if(hikeList.size() == 0){
 
                     tvEmptyData.setVisibility(View.VISIBLE);

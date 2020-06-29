@@ -5,6 +5,7 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +29,9 @@ import com.pccw.hikerph.Helper.ImageFilePath;
 import com.pccw.hikerph.Model.HikeDto;
 import com.pccw.hikerph.Model.Profile;
 import com.pccw.hikerph.Helper.Properties;
+import com.pccw.hikerph.RoomDatabase.ImageConverter;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -66,7 +70,7 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
     Date _startDate = new Date();
     Date _endDate = new Date();
 
-    private String path_banner = "";
+    private Bitmap bitmap_banner;
 
     public AddHikeFragment() {
         // Required empty public constructor
@@ -203,22 +207,14 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
 
             Uri imageUri = data.getData();
 
-            String realPath = ImageFilePath.getPath(getContext(), data.getData());
-            path_banner = realPath;
+            try {
+                bitmap_banner = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             Glide.with(this)
-                    .load(imageUri)
-                    .into(imgBanner);
-        } else if (requestCode == RequestCode.SELECT_PIC_GALLERY.getCode()
-                && resultCode == RESULT_OK) {
-
-            Uri imageUri = data.getData();
-
-            String realPath = ImageFilePath.getPath(getContext(), data.getData());
-            path_banner = realPath;
-
-            Glide.with(this)
-                    .load(imageUri)
+                    .load(bitmap_banner)
                     .into(imgBanner);
         }
     }
@@ -247,7 +243,8 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
         if (currentProfile != null) {
 
             HikeDto hikeDto = new HikeDto(strEventName, strMtName, strLocation, strStartDate, strEndDate, strTourGuide
-                    , dblEstBudget, longElevation, currentProfile.getId(), path_banner, startCal.getTimeInMillis(),endCal.getTimeInMillis() );
+                    , dblEstBudget, longElevation, currentProfile.getId(), startCal.getTimeInMillis(),
+                    endCal.getTimeInMillis(), ImageConverter.bitmap2ByteArray(bitmap_banner));
 
             showAddItiFragment(hikeDto);
 
@@ -358,10 +355,10 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
     private void pickImageGallery() {
 
         int reqCode = RequestCode.SELECT_PIC_GALLERY.getCode();
-        //browsePic();
-        Intent gallery = new Intent();
-        gallery.setType("image/*");
-        gallery.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(gallery, "Select profile picture"), reqCode);
+
+        Intent galleryIntent = new
+                Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+        startActivityForResult(Intent.createChooser(galleryIntent, "Select profile picture"), reqCode);
     }
 }

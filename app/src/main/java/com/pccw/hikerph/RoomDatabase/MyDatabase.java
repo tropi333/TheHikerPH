@@ -5,12 +5,13 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
 import com.pccw.hikerph.Model.HikeDto;
 import com.pccw.hikerph.Model.Itinerary;
 import com.pccw.hikerph.Model.Profile;
 
-@Database(entities = {Profile.class, HikeDto.class, Itinerary.class},version = 12, exportSchema = false)
+@Database(entities = {Profile.class, HikeDto.class, Itinerary.class},version = 20, exportSchema = false)
 
 public abstract class MyDatabase extends RoomDatabase {
 
