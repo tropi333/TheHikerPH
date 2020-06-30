@@ -54,8 +54,10 @@ public class ProfileHikeAdapter extends RecyclerView.Adapter<ProfileHikeAdapter.
         holder.difficultyLvl.setText(hike.getElevation() + " (masl)");
         holder.startDate.setText(hike.getStartDate());
 
+        String path_banner = hike.getPath_banner();
+
         Glide.with(context)
-                .load(hike.getImage_banner())
+                .load(path_banner)
                 .placeholder(R.drawable.mt_icon)
                 .into(holder.imageView);
 

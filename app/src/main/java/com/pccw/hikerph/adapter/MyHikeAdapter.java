@@ -45,6 +45,7 @@ public class MyHikeAdapter extends RecyclerView.Adapter<MyHikeAdapter.MyHikeView
         holder.mtLocation.setText(hikeDto.getLocation());
         holder.date.setText(hikeDto.getStartDate());
 
+        System.out.println("Profile Banner - "+ hikeDto.getEventName()+" : "+hikeDto.getPath_banner());
     }
 
     @Override

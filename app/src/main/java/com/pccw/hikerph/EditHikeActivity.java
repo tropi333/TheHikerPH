@@ -4,12 +4,10 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -19,17 +17,17 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.pccw.hikerph.Enum.RequestCode;
+import com.pccw.hikerph.Helper.ImageFilePath;
 import com.pccw.hikerph.Helper.Properties;
 import com.pccw.hikerph.Model.HikeDto;
 import com.pccw.hikerph.Model.Profile;
-import com.pccw.hikerph.RoomDatabase.ImageConverter;
 import com.pccw.hikerph.ViewModel.ParentActivity;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class EditHikeActivity extends ParentActivity implements View.OnClickListener {
@@ -58,11 +56,9 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
     HikeDto hikeDto;
     int index_hike;
 
-
     Date _startDate = new Date();
     Date _endDate = new Date();
 
-    Bitmap bitmap_banner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +81,7 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
         index_hike = (int)getIntent().getExtras().get("index_hike");
         hikeDto = (HikeDto) getIntent().getParcelableExtra("hikeDto");
 
+        System.out.println("aaaaa"+hikeDto.getPath_banner());
         currentProfile = Properties.getInstance().getCurrentProfile();
         eventName = findViewById(R.id.etEventName);
         mtName = findViewById(R.id.etMountainName);
@@ -192,7 +189,6 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
 
         hikeDto.setDtStartDate(startCal.getTimeInMillis());
         hikeDto.setDtEndDate(endCal.getTimeInMillis());
-        hikeDto.setImage_banner(ImageConverter.bitmap2ByteArray(bitmap_banner));
 
         showEditItiFragment();
     }
@@ -208,15 +204,14 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
         tourGuide.setText(hikeDto.getTourGuide());
         estBudget.setText(hikeDto.getEstBudget().toString());
 
-        if(hikeDto.getImage_banner() != null){
+        if(hikeDto.getPath_banner() != null){
+            String path_banner = hikeDto.getPath_banner();
 
             Glide.with(this)
-                    .load(hikeDto.getImage_banner())
-                    .placeholder(R.drawable.mt_icon).into(imgBanner);
-
-            bitmap_banner = ImageConverter.byteArray2Bitmap(hikeDto.getImage_banner());
+                    .load(path_banner)
+                    .placeholder(R.drawable.mt_icon)
+                    .into(imgBanner);
         }
-
 
     }
 
@@ -275,6 +270,7 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
         intent.putExtra("index_hike",index_hike);
 
         startActivityForResult(intent,2);
+
     }
 
     @Override
@@ -291,11 +287,8 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
 
             Uri imageUri = data.getData();
 
-            try {
-                 bitmap_banner = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            String realPath = ImageFilePath.getPath(this, data.getData());
+            hikeDto.setPath_banner(realPath);
 
             Glide.with(this)
                     .load(imageUri)
@@ -344,11 +337,11 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
     private void pickImageGallery() {
 
         int reqCode = RequestCode.SELECT_PIC_GALLERY.getCode();
-
-        Intent galleryIntent = new
-                Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-        startActivityForResult(Intent.createChooser(galleryIntent, "Select profile picture"), reqCode);
+        //browsePic();
+        Intent gallery = new Intent();
+        gallery.setType("image/*");
+        gallery.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(gallery, "Select profile picture"), reqCode);
     }
 
 }

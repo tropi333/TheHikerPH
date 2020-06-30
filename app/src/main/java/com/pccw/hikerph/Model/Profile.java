@@ -1,11 +1,15 @@
 package com.pccw.hikerph.Model;
 
-import androidx.room.ColumnInfo;
+import android.graphics.Bitmap;
+
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.pccw.hikerph.AddHikeFragment;
+
 @Entity
 public class Profile {
+
 
     @PrimaryKey(autoGenerate = true)
     private long id;
@@ -26,13 +30,11 @@ public class Profile {
 
     private String gender;
 
-    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    byte[] img_profile;
+    private String profilePic_bitMap;
 
 
     public Profile(String firstName, String middleName, String lastName, String bday, String email,
-                   String contactNo, String motto, String gender,
-                   byte[] img_profile) {
+                   String contactNo, String motto, String profilePic_bitMap, String gender) {
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
@@ -40,8 +42,8 @@ public class Profile {
         this.email = email;
         this.contactNo = contactNo;
         this.motto = motto;
+        this.profilePic_bitMap = profilePic_bitMap;
         this.gender = gender;
-        this.img_profile = img_profile;
     }
 
     public long getId() {
@@ -109,6 +111,10 @@ public class Profile {
     }
 
 
+    public String getProfilePic_bitMap() {
+        return profilePic_bitMap;
+    }
+
     public String getGender() {
         return gender;
     }
@@ -117,11 +123,7 @@ public class Profile {
         this.gender = gender;
     }
 
-    public byte[] getImg_profile() {
-        return img_profile;
-    }
-
-    public void setImg_profile(byte[] img_profile) {
-        this.img_profile = img_profile;
+    public void setProfilePic_bitMap(String profilePic_bitMap) {
+        this.profilePic_bitMap = profilePic_bitMap;
     }
 }

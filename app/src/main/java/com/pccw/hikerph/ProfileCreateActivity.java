@@ -5,7 +5,7 @@ import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -21,13 +21,13 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.pccw.hikerph.Enum.RequestCode;
+import com.pccw.hikerph.Helper.ImageFilePath;
 import com.pccw.hikerph.Helper.Properties;
 import com.pccw.hikerph.Model.Profile;
-import com.pccw.hikerph.RoomDatabase.ImageConverter;
 import com.pccw.hikerph.RoomDatabase.MyDatabase;
 import com.pccw.hikerph.ViewModel.ParentActivity;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.Calendar;
 
 import androidx.annotation.NonNull;
@@ -41,7 +41,6 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
     Profile currentProfile;
 
-    Bitmap bitmapProfile;
     ImageView imageView;
 
     TextView etFname;
@@ -56,6 +55,8 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
     Button btnSave;
 
     DatePickerDialog picker;
+
+    String path_profilePic;
 
     public static final Calendar calendar = Calendar.getInstance();
 
@@ -137,14 +138,15 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
         etContactNo.setText(currentProfile.getContactNo());
         etMotto.setText(currentProfile.getMotto());
 
-        if(currentProfile.getImg_profile() != null){
+        if(currentProfile.getProfilePic_bitMap() != null){
+            Uri uri = Uri.fromFile(new File(currentProfile.getProfilePic_bitMap()));
 
             Glide.with(this)
-                    .load(currentProfile.getImg_profile())
+                    .load(uri)
                     .placeholder(R.drawable.profile)
                     .into(imageView);
+            path_profilePic = currentProfile.getProfilePic_bitMap();
 
-            bitmapProfile = ImageConverter.byteArray2Bitmap(currentProfile.getImg_profile());
         }
         else{
 
@@ -199,14 +201,11 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
             Uri imageUri = data.getData();
 
-            try {
-                bitmapProfile = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            String realPath = ImageFilePath.getPath(this, data.getData());
+            path_profilePic = realPath;
 
             Glide.with(this)
-                    .load(bitmapProfile)
+                    .load(imageUri)
                     .into(imageView);
         }
     }
@@ -229,10 +228,10 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
     private void pickImageGallery() {
 
         int reqCode = RequestCode.SELECT_PIC_GALLERY.getCode();
-        Intent galleryIntent = new
-                Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-        startActivityForResult(Intent.createChooser(galleryIntent, "Select profile picture"), reqCode);
+        Intent gallery = new Intent();
+        gallery.setType("image/*");
+        gallery.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(gallery, "Select profile picture"), reqCode);
     }
 
 
@@ -271,8 +270,8 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
 
         if (currentProfile == null) {
-            currentProfile = new Profile(fName, "mName", lName, bday, email, contactNo,
-                    motto, gender, ImageConverter.bitmap2ByteArray(bitmapProfile));
+            currentProfile = new Profile(fName, "mName", lName, bday, email, contactNo, motto,
+                    path_profilePic, gender);
             new SaveProfileAsyncTask().execute();
         } else {
             currentProfile.setFirstName(fName);
@@ -282,7 +281,7 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
             currentProfile.setContactNo(contactNo);
             currentProfile.setMotto(motto);
             currentProfile.setGender(gender);
-            currentProfile.setImg_profile(ImageConverter.bitmap2ByteArray(bitmapProfile));
+            currentProfile.setProfilePic_bitMap(path_profilePic);
             new UpdateProfileAsyncTask().execute();
         }
 
