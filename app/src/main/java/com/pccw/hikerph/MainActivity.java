@@ -7,16 +7,11 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.pccw.hikerph.Helper.Properties;
-import com.pccw.hikerph.Model.HikeDto;
-import com.pccw.hikerph.Model.Itinerary;
+import com.pccw.hikerph.Utilities.Properties;
 import com.pccw.hikerph.RoomDatabase.MyDatabase;
 import com.pccw.hikerph.ViewModel.MyHikeViewModel;
-
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

@@ -6,16 +6,16 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import com.pccw.hikerph.Model.HikeDto;
+import com.pccw.hikerph.Model.Hike;
 import com.pccw.hikerph.Model.Itinerary;
 import com.pccw.hikerph.Model.Profile;
 
-@Database(entities = {Profile.class, HikeDto.class, Itinerary.class},version = 12, exportSchema = false)
+@Database(entities = {Profile.class, Hike.class, Itinerary.class},version = 12, exportSchema = false)
 
 public abstract class MyDatabase extends RoomDatabase {
 
     private static MyDatabase instance;
-    public abstract MyDAO myDAO();
+    public abstract ProfileDAO myDAO();
     public abstract HikeDAO hikeDAO();
     public abstract ItineraryDAO itineraryDAO();
 

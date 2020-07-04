@@ -5,13 +5,11 @@ import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -20,19 +18,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.pccw.hikerph.Enum.RequestCode;
-import com.pccw.hikerph.Helper.ImageFilePath;
-import com.pccw.hikerph.Helper.Properties;
 import com.pccw.hikerph.Model.Profile;
-import com.pccw.hikerph.RoomDatabase.MyDatabase;
+import com.pccw.hikerph.Utilities.ImageHelper;
+import com.pccw.hikerph.Utilities.Properties;
 import com.pccw.hikerph.ViewModel.ParentActivity;
+import com.pccw.hikerph.ViewModel.ProfileViewModel;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 public class ProfileCreateActivity extends ParentActivity implements View.OnClickListener {
 
@@ -57,9 +59,12 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
     DatePickerDialog picker;
 
     String path_profilePic;
+    Bitmap selectedImage;
+
+    boolean isInitialObserve = true;
 
     public static final Calendar calendar = Calendar.getInstance();
-
+    private ProfileViewModel profileViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +82,7 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
             populateFields();
         }
         else{
+            testPopulate();
             Glide.with(this)
                     .load(R.drawable.profile)
                     .into(imageView);
@@ -85,6 +91,13 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
     }
 
+    private void testPopulate(){
+        etEmail.setText("jomar");
+        etMotto.setText("");
+        etContactNo.setText("05");
+        etFname.setText("ss");
+        etLname.setText("");
+    }
     @Override
     public boolean onSupportNavigateUp() {
         finish();
@@ -92,6 +105,24 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
     }
 
     private void initFields() {
+
+        profileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
+
+        profileViewModel.getProfile().observe(this, new Observer<Profile>() {
+            @Override
+            public void onChanged(Profile profile) {
+                //initial observe : true - upon first opening of this fragment
+                //initial observe : false - after saving/updating profile
+                if(isInitialObserve){
+                    isInitialObserve = false;
+                }
+                else{
+                    Toast.makeText(ProfileCreateActivity.this, R.string.profile_save_success,
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+        });
 
         imageView = findViewById(R.id.imgView_profile);
         etFname = findViewById(R.id.etFName_profile_create);
@@ -144,6 +175,8 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
             Glide.with(this)
                     .load(uri)
                     .placeholder(R.drawable.profile)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
                     .into(imageView);
             path_profilePic = currentProfile.getProfilePic_bitMap();
 
@@ -201,11 +234,15 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
             Uri imageUri = data.getData();
 
-            String realPath = ImageFilePath.getPath(this, data.getData());
-            path_profilePic = realPath;
+            try {
+                selectedImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
 
             Glide.with(this)
-                    .load(imageUri)
+                    .load(selectedImage)
                     .into(imageView);
         }
     }
@@ -234,8 +271,6 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
         startActivityForResult(Intent.createChooser(gallery, "Select profile picture"), reqCode);
     }
 
-
-
     private void showDatePicker() {
         final Calendar cldr = Calendar.getInstance();
         int day = cldr.get(Calendar.DAY_OF_MONTH);
@@ -257,7 +292,6 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
         picker.show();
     }
 
-
     private void saveProfile() {
 
         String fName = etFname.getText().toString();
@@ -269,10 +303,18 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
         String motto = etMotto.getText().toString();
 
 
+        if(selectedImage !=null ) {
+            path_profilePic = ImageHelper.saveImageToInternal(selectedImage, getApplicationContext(),
+                    ImageHelper.PROFILE_FILE_NAME);
+        }
+
         if (currentProfile == null) {
             currentProfile = new Profile(fName, "mName", lName, bday, email, contactNo, motto,
                     path_profilePic, gender);
-            new SaveProfileAsyncTask().execute();
+
+            profileViewModel.saveProfile(currentProfile);
+
+
         } else {
             currentProfile.setFirstName(fName);
             currentProfile.setLastName(lName);
@@ -282,7 +324,7 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
             currentProfile.setMotto(motto);
             currentProfile.setGender(gender);
             currentProfile.setProfilePic_bitMap(path_profilePic);
-            new UpdateProfileAsyncTask().execute();
+            profileViewModel.updateProfile(currentProfile);
         }
 
     }
@@ -291,7 +333,6 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
         String email = etEmail.getText().toString().trim();
 
-        System.out.println("Is valid email "+email + "?: "+Properties.isValid(email));
         if (etFname.getText().toString().trim().isEmpty()) {
 
             String message = getResources().getString(R.string.message_empty_fName);
@@ -335,58 +376,6 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
         return true;
 
-    }
-
-
-    private class SaveProfileAsyncTask extends AsyncTask<Void, Void, Profile> {
-
-        @Override
-        protected Profile doInBackground(Void... voids) {
-            Long id = MyDatabase.getInstance(getApplicationContext()).myDAO().saveProfile(currentProfile);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Profile profile) {
-
-            Properties.getInstance().setCurrentProfile(currentProfile);
-
-            Log.d(TAG, "onPostExecute: Done saving profile...");
-            Log.d(TAG, "onPostExecute: profile id " + currentProfile.getId());
-
-            String message = getResources().getString(R.string.profile_save_success);
-            showToastMessage(getApplicationContext(), message, Toast.LENGTH_SHORT);
-
-            close();
-
-        }
-    }
-
-    private class UpdateProfileAsyncTask extends AsyncTask<Void, Void, Profile> {
-
-        @Override
-        protected Profile doInBackground(Void... voids) {
-            Log.d(TAG, "doInBackground: updating profile...");
-            MyDatabase.getInstance(getApplicationContext()).myDAO().updateProfile(currentProfile);
-            Log.d(TAG, "doInBackground: PROFILE ID ");
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Profile profile) {
-
-            Log.d(TAG, "onPostExecute: Done updating profile...");
-            Log.d(TAG, "onPostExecute: profile id" + currentProfile.getId());
-
-            String message = getResources().getString(R.string.profile_update_success);
-            showToastMessage(getApplicationContext(), message, Toast.LENGTH_SHORT);
-
-            close();
-        }
-    }
-
-    private void close() {
-        finish();
     }
 
     private void showDialog(String title, String[] collections) {

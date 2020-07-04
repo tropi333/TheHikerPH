@@ -1,5 +1,6 @@
 package com.pccw.hikerph.RoomDatabase;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -10,7 +11,7 @@ import com.pccw.hikerph.Model.Profile;
 import java.util.List;
 
 @Dao
-public interface MyDAO {
+public interface ProfileDAO {
 
     @Insert
     public long saveProfile(Profile profile);
@@ -20,8 +21,8 @@ public interface MyDAO {
     public void updateProfile(Profile profile);
 
 
-    @Query("Select * from Profile")
-    public List<Profile> getProfile();
+    @Query("Select * from Profile LIMIT 1")
+    public LiveData<Profile> getProfile();
 
 
     @Query("Delete from Profile")

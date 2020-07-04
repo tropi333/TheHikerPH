@@ -1,4 +1,4 @@
-package com.pccw.hikerph.Helper;
+package com.pccw.hikerph.Utilities;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentUris;

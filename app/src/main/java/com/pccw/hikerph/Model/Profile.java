@@ -1,11 +1,9 @@
 package com.pccw.hikerph.Model;
 
-import android.graphics.Bitmap;
+import java.util.List;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-
-import com.pccw.hikerph.AddHikeFragment;
 
 @Entity
 public class Profile {
@@ -31,7 +29,6 @@ public class Profile {
     private String gender;
 
     private String profilePic_bitMap;
-
 
     public Profile(String firstName, String middleName, String lastName, String bday, String email,
                    String contactNo, String motto, String profilePic_bitMap, String gender) {

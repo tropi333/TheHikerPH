@@ -1,14 +1,10 @@
-package com.pccw.hikerph.Helper;
+package com.pccw.hikerph.Utilities;
 
-import android.content.Context;
-import android.widget.Toast;
-
-import com.pccw.hikerph.Model.HikeDto;
+import com.pccw.hikerph.Model.Hike;
 import com.pccw.hikerph.Model.Profile;
 
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 import java.util.List;
 
 public class Properties {
@@ -16,6 +12,8 @@ public class Properties {
     private static Properties instance;
 
     public static final int REQUEST_CODE_EDIT_PROFILE = 1;
+
+    public static final String TAG = "";
 
     public static final int REQUEST_CODE_EDIT_ITINERARY = 2;
 
@@ -31,7 +29,7 @@ public class Properties {
 
     private Profile currentProfile;
 
-    private List<HikeDto> hikeDtoList;
+    private List<Hike> hikeList;
 
     public static Properties getInstance() {
         if (instance == null) {
@@ -49,12 +47,12 @@ public class Properties {
         this.currentProfile = currentProfile;
     }
 
-    public List<HikeDto> getHikeDtoList() {
-        return hikeDtoList;
+    public List<Hike> getHikeList() {
+        return hikeList;
     }
 
-    public void setHikeDtoList(List<HikeDto> hikeDtoList) {
-        this.hikeDtoList = hikeDtoList;
+    public void setHikeList(List<Hike> hikeList) {
+        this.hikeList = hikeList;
     }
 
     //validator

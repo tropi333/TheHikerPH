@@ -2,8 +2,6 @@ package com.pccw.hikerph;
 
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,14 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-import com.pccw.hikerph.Helper.Properties;
-import com.pccw.hikerph.Model.HikeDto;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.pccw.hikerph.Model.Hike;
 import com.pccw.hikerph.Model.Profile;
-import com.pccw.hikerph.RoomDatabase.MyDatabase;
+import com.pccw.hikerph.Utilities.Properties;
 import com.pccw.hikerph.ViewModel.MyHikeViewModel;
 import com.pccw.hikerph.ViewModel.ProfileViewModel;
 import com.pccw.hikerph.adapter.ProfileHikeAdapter;
@@ -36,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -66,11 +59,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener,
     RecyclerView recyclerView;
     ProfileHikeAdapter profileHikeAdapter;
 
-    List<HikeDto> hikeDtoLs;
-    List<HikeDto> upcomingHikeList;
+//    List<Hike> hikeLS;
+    List<Hike> upcomingHikeList;
 
     private ProfileViewModel profileViewModel;
     private MyHikeViewModel myHikeViewModel;
+//    private Profile currentProfile;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -84,9 +78,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener,
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         initFields(view);
+
         initViewModel();
 
-        new GetProfileAsyncTask().execute();
 
         return view;
     }
@@ -106,7 +100,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener,
         imageView = view.findViewById(R.id.imgViewProfile_profile_create);
 
         recyclerView = view.findViewById(R.id.recyclerView);
-        recyclerView.setAdapter(new ProfileHikeAdapter(getContext(), upcomingHikeList, this));
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL,
                 false));
 
@@ -117,39 +110,26 @@ public class ProfileFragment extends Fragment implements View.OnClickListener,
 
 
     private void initViewModel() {
-        myHikeViewModel = ViewModelProviders.of(this).get(MyHikeViewModel.class);
-        myHikeViewModel.getAllHikes().observe(getViewLifecycleOwner(), new Observer<List<HikeDto>>() {
+
+        profileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
+
+        profileViewModel.getProfile().observe(this, new Observer<Profile>() {
             @Override
-            public void onChanged(List<HikeDto> hikeDtos) {
+            public void onChanged(Profile profile) {
 
-                hikeDtoLs = hikeDtos;
-
-                tvTotalHike.setText("" + hikeDtoLs.size());
-
-                if (hikeDtoLs.size() == 0) {
-
-                    tvHighestPeak.setText("0");
-                    tvRecentHike.setText("n/a");
-
-                } else {
-
-                    List<HikeDto> completedHikes = getFilteredHikes(true,hikeDtoLs);
-
-                    System.out.println("sizeee "+ completedHikes.size());
-                    if(completedHikes.size() > 0){
-                        HikeDto recentHike = completedHikes.stream().findFirst().get();
-                        tvRecentHike.setText(recentHike.getMtName());
-
-                        HikeDto highestPeak = Collections.max(completedHikes, Comparator.comparing(HikeDto::getElevation));
-                        tvHighestPeak.setText(highestPeak.getMtName() + "(" + highestPeak.getElevation() + " masl)");
-
-                    }
-
-
-                    getUpcomingHikes(hikeDtos);
-                }
+                populatePersonalInfo(profile);
             }
         });
+
+        myHikeViewModel = ViewModelProviders.of(this).get(MyHikeViewModel.class);
+        myHikeViewModel.getAllHikes().observe(this, new Observer<List<Hike>>() {
+            @Override
+            public void onChanged(List<Hike> hikeLs) {
+
+                populateHikeInfo(hikeLs);
+            }
+        });
+
 
     }
 
@@ -159,34 +139,61 @@ public class ProfileFragment extends Fragment implements View.OnClickListener,
         switch (view.getId()) {
 
             case R.id.btnProfileEdit_profile:
+
                 showProfileCreateActivity();
+
                 break;
 
         }
     }
 
-    private void populatePersonalInfo() {
+    private void populatePersonalInfo(Profile currentProfile) {
 
 
-        if (Properties.getInstance().getCurrentProfile() == null) {
+        if (currentProfile == null) {
 
             tvFullName.setText("----------------");
             btnEdit.setText(getString(R.string.btn_create_profile));
+
             Glide.with(getContext()).load(R.drawable.profile).into(imageView);
 
         } else {
 
-            Profile profile = Properties.getInstance().getCurrentProfile();
 
             btnEdit.setText(getString(R.string.btn_edit_profile));
-            tvFullName.setText(profile.getLastName() + ", " + profile.getFirstName());
-            tvMotto.setText("' " + profile.getMotto() + "' ");
+            tvFullName.setText(currentProfile.getLastName() + ", " + currentProfile.getFirstName());
+            tvMotto.setText("' " + currentProfile.getMotto() + "' ");
 
-            loadProfilePicture(profile.getProfilePic_bitMap());
+            loadProfilePicture(currentProfile.getProfilePic_bitMap());
 
         }
     }
 
+    private void populateHikeInfo(List<Hike> hikeLs){
+
+        tvTotalHike.setText("" + hikeLs.size());
+
+        if (hikeLs.size() == 0) {
+
+            tvHighestPeak.setText("0");
+            tvRecentHike.setText("n/a");
+
+        } else {
+
+            List<Hike> completedHikes = getFilteredHikes(true, hikeLs);
+
+            if(completedHikes.size() > 0){
+                Hike recentHike = completedHikes.stream().findFirst().get();
+                tvRecentHike.setText(recentHike.getMtName());
+
+                Hike highestPeak = Collections.max(completedHikes, Comparator.comparing(Hike::getElevation));
+                tvHighestPeak.setText(highestPeak.getMtName() + "(" + highestPeak.getElevation() + " masl)");
+
+            }
+
+            getUpcomingHikes(hikeLs);
+        }
+    }
 
     private void loadProfilePicture(String profilePic_path){
 
@@ -194,32 +201,24 @@ public class ProfileFragment extends Fragment implements View.OnClickListener,
 
             Glide.with(getContext())
                     .load(profilePic_path)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .placeholder(R.drawable.profile).
                     into(imageView);
         } else {
 
-            Glide.with(getContext()).load(R.drawable.profile).into(imageView);
+            Glide.with(getContext()).load(R.drawable.profile)
+                    .into(imageView);
         }
     }
-
 
     private void showProfileCreateActivity() {
 
         Intent intent = new Intent(getActivity(), ProfileCreateActivity.class);
         startActivityForResult(intent, Properties.REQUEST_CODE_EDIT_PROFILE);
-
     }
 
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == Properties.REQUEST_CODE_EDIT_PROFILE)
-            populatePersonalInfo();
-    }
-
-
-    private void getUpcomingHikes(List<HikeDto> hikeList) {
+    private void getUpcomingHikes(List<Hike> hikeList) {
 
         upcomingHikeList = getFilteredHikes(false, hikeList);
 
@@ -240,8 +239,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener,
 
     }
 
-
-    private List<HikeDto> getFilteredHikes(boolean isCompletedHikes, List<HikeDto> hikeList){
+    private List<Hike> getFilteredHikes(boolean isCompletedHikes, List<Hike> hikeList){
 
         final Calendar calCurrent = Calendar.getInstance();
         calCurrent.setTime(new Date());
@@ -250,7 +248,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener,
         calCurrent.set(Calendar.SECOND, 0);
         calCurrent.set(Calendar.MILLISECOND, 0);
 
-        List<HikeDto> hikes = hikeList.stream()
+
+        List<Hike> hikes = hikeList.stream()
                 .filter(hike -> {
                     try {
                         final Calendar calStartDate = Calendar.getInstance();
@@ -289,35 +288,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onProfileHikeEventClickListener(int position) {
+   /*     Toast.makeText(getContext(), hikeLS.get(position).getMtName() + "" + position,
+                Toast.LENGTH_SHORT).show();*/
 
-        Toast.makeText(getContext(), hikeDtoLs.get(position).getMtName() + "" + position,
-                Toast.LENGTH_SHORT).show();
-
+        Toast.makeText(getContext(), ""+position, Toast.LENGTH_SHORT).show();
     }
 
-
-
-    private class GetProfileAsyncTask extends AsyncTask<Void, Void, List<Profile>> {
-        @Override
-
-        protected List<Profile> doInBackground(Void... voids) {
-
-            List<Profile> s = MyDatabase.getInstance(getContext()).myDAO().getProfile();
-//            MyDatabase.getInstance(getContext()).myDAO().deleteAllProfiles();
-            return s;
-        }
-
-        @Override
-        protected void onPostExecute(List<Profile> profiles) {
-
-            if (profiles.size() > 0) {
-
-                Profile profile = profiles.get(0);
-                Properties.getInstance().setCurrentProfile(profile);
-            }
-
-            populatePersonalInfo();
-
-        }
-    }
 }

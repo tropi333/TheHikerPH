@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.pccw.hikerph.Model.HikeDto;
+import com.pccw.hikerph.Model.Hike;
 import com.pccw.hikerph.R;
 
 import java.util.List;
@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ProfileHikeAdapter extends RecyclerView.Adapter<ProfileHikeAdapter.ProfileHikeViewHolder> {
 
-    List<HikeDto> upcomingHikeLs;
+    List<Hike> upcomingHikeLs;
 
     Context context;
 
@@ -29,7 +29,7 @@ public class ProfileHikeAdapter extends RecyclerView.Adapter<ProfileHikeAdapter.
     }
 
 
-    public ProfileHikeAdapter(Context context, List<HikeDto> upcomingHikeLs, OnProfileHikeEventClickListener onProfileHikeEventClickListener) {
+    public ProfileHikeAdapter(Context context, List<Hike> upcomingHikeLs, OnProfileHikeEventClickListener onProfileHikeEventClickListener) {
         this.upcomingHikeLs = upcomingHikeLs;
         this.onProfileHikeEventClickListener = onProfileHikeEventClickListener;
         this.context = context;
@@ -48,7 +48,7 @@ public class ProfileHikeAdapter extends RecyclerView.Adapter<ProfileHikeAdapter.
     @Override
     public void onBindViewHolder(@NonNull ProfileHikeViewHolder holder, int position) {
 
-        HikeDto hike = upcomingHikeLs.get(position);
+        Hike hike = upcomingHikeLs.get(position);
         holder.mtName.setText(hike.getMtName());
         holder.mtLocation.setText(hike.getLocation());
         holder.difficultyLvl.setText(hike.getElevation() + " (masl)");
