@@ -7,7 +7,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.pccw.hikerph.Model.HikeDto;
+import com.pccw.hikerph.Model.Hike;
 
 import java.util.List;
 
@@ -15,17 +15,20 @@ import java.util.List;
 public interface HikeDAO {
 
     @Insert
-    public void addHike(HikeDto hikeDto);
+    public void addHike(Hike hike);
 
     @Update
-    public void updateHike(HikeDto hikeDto);
+    public void updateHike(Hike hike);
 
     @Delete
-    public void deleteHike(HikeDto hikeDto);
+    public void deleteHike(Hike hike);
 
 
     @Query("Select * from Hike order by dtStartDate desc")
-    public LiveData<List<HikeDto>> getHikeList();
+    public LiveData<List<Hike>> getHikeList();
+
+    @Query("Select max(id) from Hike")
+    public long getMaxHikeId();
 
 
     @Query("Delete from Hike")

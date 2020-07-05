@@ -31,6 +31,7 @@ public class Properties {
 
     private List<Hike> hikeList;
 
+
     public static Properties getInstance() {
         if (instance == null) {
             instance = new Properties();
@@ -60,5 +61,6 @@ public class Properties {
         String regex = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
         return email.matches(regex);
     }
+
 
 }

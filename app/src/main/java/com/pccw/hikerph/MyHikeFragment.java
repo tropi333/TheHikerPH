@@ -3,7 +3,6 @@ package com.pccw.hikerph;
 
 import android.content.Intent;
 import android.graphics.Canvas;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,16 +15,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.pccw.hikerph.Model.HikeDto;
-import com.pccw.hikerph.Helper.Properties;
-import com.pccw.hikerph.RoomDatabase.MyDatabase;
+import com.pccw.hikerph.Model.Hike;
+import com.pccw.hikerph.Utilities.Properties;
 import com.pccw.hikerph.ViewModel.MyHikeViewModel;
 import com.pccw.hikerph.adapter.MyHikeAdapter;
 
@@ -45,9 +43,9 @@ public class MyHikeFragment extends Fragment implements MyHikeAdapter.OnMyHikeEv
 
     MyHikeAdapter myHikeAdapter;
 
-    List<HikeDto> hikeList;
+    List<Hike> hikeList;
 
-    HikeDto deletedHike = null;
+    Hike deletedHike = null;
 
 
 
@@ -87,18 +85,14 @@ public class MyHikeFragment extends Fragment implements MyHikeAdapter.OnMyHikeEv
     private void initViewModel(){
 
         myHikeViewModel = ViewModelProviders.of(this).get(MyHikeViewModel.class);
-        myHikeViewModel.getAllHikes().observe(getViewLifecycleOwner(), new Observer<List<HikeDto>>() {
+        myHikeViewModel.getAllHikes().observe(getViewLifecycleOwner(), new Observer<List<Hike>>() {
             @Override
-            public void onChanged(List<HikeDto> hikeDtos) {
+            public void onChanged(List<Hike> hikes) {
 
-                hikeList = hikeDtos;
+                hikeList = hikes;
 
                 refreshAdapter(hikeList);
 
-                for (HikeDto d:hikeDtos) {
-                    System.out.println("JOMAS"+d.getDtStartDate());
-
-                }
                 if(hikeList.size() == 0){
 
                     tvEmptyData.setVisibility(View.VISIBLE);
@@ -113,9 +107,9 @@ public class MyHikeFragment extends Fragment implements MyHikeAdapter.OnMyHikeEv
         });
     }
 
-    public void refreshAdapter(List<HikeDto> hikeDtos){
+    public void refreshAdapter(List<Hike> hikes){
 
-        myHikeAdapter = new MyHikeAdapter(hikeDtos,this);
+        myHikeAdapter = new MyHikeAdapter(hikes,this);
         recyclerView.setAdapter(myHikeAdapter);
     }
 
@@ -176,8 +170,8 @@ public class MyHikeFragment extends Fragment implements MyHikeAdapter.OnMyHikeEv
     private  void showHikeEditActivity(int index_hike){
 
         Intent intent = new Intent(getContext(), EditHikeActivity.class);
-        HikeDto hikeDto = hikeList.get(index_hike);
-        intent.putExtra("hikeDto", hikeDto);
+        Hike hike = hikeList.get(index_hike);
+        intent.putExtra("hikeDto", hike);
         intent.putExtra("index_hike",index_hike);
         startActivityForResult(intent, Properties.REQUEST_CODE_EDIT_HIKE);
     }

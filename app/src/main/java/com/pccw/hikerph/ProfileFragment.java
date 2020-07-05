@@ -59,12 +59,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener,
     RecyclerView recyclerView;
     ProfileHikeAdapter profileHikeAdapter;
 
-//    List<Hike> hikeLS;
     List<Hike> upcomingHikeList;
 
     private ProfileViewModel profileViewModel;
     private MyHikeViewModel myHikeViewModel;
-//    private Profile currentProfile;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -288,10 +286,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onProfileHikeEventClickListener(int position) {
-   /*     Toast.makeText(getContext(), hikeLS.get(position).getMtName() + "" + position,
-                Toast.LENGTH_SHORT).show();*/
 
-        Toast.makeText(getContext(), ""+position, Toast.LENGTH_SHORT).show();
     }
 
 }

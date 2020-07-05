@@ -1,22 +1,19 @@
 package com.pccw.hikerph.ViewModel;
 
 import android.app.Application;
-import android.content.Context;
 
-import com.pccw.hikerph.Model.HikeDto;
+import com.pccw.hikerph.Model.Hike;
 import com.pccw.hikerph.repository.MyHikeRepository;
 
-import java.util.HashMap;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModel;
 
 public class MyHikeViewModel extends AndroidViewModel {
 
-    private LiveData<List<HikeDto>> allHike;
+    private LiveData<List<Hike>> allHike;
     private MyHikeRepository myHikeRepository;
 
 
@@ -55,20 +52,24 @@ public class MyHikeViewModel extends AndroidViewModel {
 
     }*/
 
-    public void insert(HikeDto hikeDto) {
-        myHikeRepository.insertHike(hikeDto);
+    public void insert( Hike hike) {
+        myHikeRepository.insertHike( hike);
     }
 
-    public void update(HikeDto hikeDto) {
-        myHikeRepository.updateHike(hikeDto);
+    public void update(Hike hike) {
+        myHikeRepository.updateHike(hike);
     }
 
-    public void delete(HikeDto hikeDto) {
-        myHikeRepository.deleteHike(hikeDto);
+    public void delete(Hike hike) {
+        myHikeRepository.deleteHike(hike);
     }
 
-    public LiveData<List<HikeDto>> getAllHikes() {
+    public LiveData<List<Hike>> getAllHikes() {
         return allHike;
+    }
+
+    public long getMaxHikeId() {
+        return myHikeRepository.getMaxHikeId();
     }
 
 }

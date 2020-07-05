@@ -73,7 +73,7 @@ public class ProfileRepository {
 
             profileDAO.saveProfile(profiles[0]);
 
-            return null;
+            return profiles[0];
         }
 
         @Override
@@ -81,28 +81,7 @@ public class ProfileRepository {
             Properties.getInstance().setCurrentProfile(profile);
         }
 
-        /*        @Override
-        protected Profile doInBackground(Void... voids) {
-//            Long id = MyDatabase.getInstance(getApplicationContext()).myDAO().saveProfile(currentProfile);
 
-            Log.d(TAG, "doInBackground: Saving profile");
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Profile profile) {
-            Log.d(TAG, "onPostExecute: ");
-          *//*  Properties.getInstance().setCurrentProfile(currentProfile);
-
-            Log.d(TAG, "onPostExecute: Done saving profile...");
-            Log.d(TAG, "onPostExecute: profile id " + currentProfile.getId());
-
-            String message = getResources().getString(R.string.profile_save_success);
-            showToastMessage(getApplicationContext(), message, Toast.LENGTH_SHORT);
-
-            close();*//*
-
-        }*/
     }
 
     private class UpdateProfileAsyncTask extends AsyncTask<Profile, Void, Profile> {
@@ -116,29 +95,14 @@ public class ProfileRepository {
         @Override
         protected Profile doInBackground(Profile... profiles) {
             profileDAO.updateProfile(profiles[0]);
-            Log.d(TAG, "doInBackground: Updaing profile");
-            return null;
-        }
-/*
-        @Override
-        protected Profile doInBackground(Void... voids) {
-        *//*    Log.d(TAG, "doInBackground: updating profile...");
-            MyDatabase.getInstance(getApplicationContext()).myDAO().updateProfile(currentProfile);
-            Log.d(TAG, "doInBackground: PROFILE ID ");*//*
-            return null;
+
+            return profiles[0];
         }
 
         @Override
         protected void onPostExecute(Profile profile) {
-
-         *//*   Log.d(TAG, "onPostExecute: Done updating profile...");
-            Log.d(TAG, "onPostExecute: profile id" + currentProfile.getId());
-
-            String message = getResources().getString(R.string.profile_update_success);
-            showToastMessage(getApplicationContext(), message, Toast.LENGTH_SHORT);
-
-            close();*//*
-        }*/
+            Properties.getInstance().setCurrentProfile(profile);
+        }
     }
 
 

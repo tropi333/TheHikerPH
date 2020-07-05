@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pccw.hikerph.Utilities.Properties;
@@ -65,11 +66,6 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.i(TAG, "onCreate: ");
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiverAddHike,
-                new IntentFilter(Properties.BROADCAST_RECEIVER_ADD_HIKE));
-
        /* if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted
@@ -109,7 +105,6 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiverAddHike);
         super.onDestroy();
     }
 
@@ -117,7 +112,8 @@ public class MainActivity extends AppCompatActivity{
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            showMyHikeFragment();
+        showMyHikeFragment();
+
         }
     };
 
@@ -147,7 +143,7 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-    private void showMyHikeFragment() {
+    public void showMyHikeFragment() {
 
         nav.getMenu().getItem(2).setChecked(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MyHikeFragment()).commit();

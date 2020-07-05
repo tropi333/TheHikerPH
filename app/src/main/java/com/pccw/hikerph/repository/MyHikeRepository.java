@@ -1,15 +1,17 @@
 package com.pccw.hikerph.repository;
 
-import android.app.Application;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.provider.MediaStore;
 import android.util.Log;
 
-import com.pccw.hikerph.Helper.Properties;
-import com.pccw.hikerph.Model.HikeDto;
-import com.pccw.hikerph.Model.Profile;
+import com.pccw.hikerph.Model.Hike;
 import com.pccw.hikerph.RoomDatabase.HikeDAO;
 import com.pccw.hikerph.RoomDatabase.MyDatabase;
+import com.pccw.hikerph.Utilities.ImageHelper;
 
 import java.util.List;
 
@@ -22,8 +24,9 @@ public class MyHikeRepository {
     private static MyHikeRepository instance;
 
     private HikeDAO hikeDAO;
-    private LiveData<List<HikeDto>> allHike;
+    private LiveData<List<Hike>> allHike;
 
+    private  Context context;
 
 
     public MyHikeRepository(Context context) {
@@ -31,7 +34,13 @@ public class MyHikeRepository {
         MyDatabase myDatabase = MyDatabase.getInstance(context);
         hikeDAO = myDatabase.hikeDAO();
         allHike = hikeDAO.getHikeList();
+        this.context = context;
 
+    }
+
+
+    public long getMaxHikeId(){
+        return  hikeDAO.getMaxHikeId();
     }
 
 
@@ -45,29 +54,29 @@ public class MyHikeRepository {
         return instance;
     }
 
-    public void insertHike(HikeDto hikeDto){
+    public void insertHike( Hike hike){
 
-        new InsertHikeAsyncTask(hikeDAO).execute(hikeDto);
-
-    }
-    public void updateHike(HikeDto hikeDto){
-
-        new UpdateHikeAsyncTask(hikeDAO).execute(hikeDto);
+        new InsertHikeAsyncTask(hikeDAO).execute(hike);
 
     }
-    public void deleteHike(HikeDto hikeDto){
+    public void updateHike(Hike hike){
 
-        new DeleteHikeAsyncTask(hikeDAO).execute(hikeDto);
+        new UpdateHikeAsyncTask(hikeDAO).execute(hike);
+
+    }
+    public void deleteHike(Hike hike){
+
+        new DeleteHikeAsyncTask(hikeDAO).execute(hike);
 
     }
 
-    public LiveData<List<HikeDto>> getAllHike(){
+    public LiveData<List<Hike>> getAllHike(){
         return allHike;
     }
 
 
 
-    private static class InsertHikeAsyncTask extends AsyncTask<HikeDto, Void, HikeDto> {
+    private static class InsertHikeAsyncTask extends AsyncTask<Hike, Void, Hike> {
 
         HikeDAO hikeDAO;
 
@@ -76,22 +85,31 @@ public class MyHikeRepository {
         }
 
         @Override
-        protected HikeDto doInBackground(HikeDto... hikeDtos) {
-            hikeDAO.addHike(hikeDtos[0]);
+        protected Hike doInBackground(Hike... hikes) {
+            hikeDAO.addHike(hikes[0]);
 
-            return hikeDtos[0];
+            return hikes[0];
         }
 
         @Override
-        protected void onPostExecute(HikeDto hikeDto) {
-            super.onPostExecute(hikeDto);
+        protected void onPostExecute(Hike hike) {
+            super.onPostExecute(hike);
 
-            Log.i(TAG, "Done adding hike: ");
+            Log.d(TAG, "onPostExecute: Saving banner");
+            Uri banner = MediaStore.Images.Media.getContentUri("");
+
+ /*           Bitmap banner = MediaStore.Images.Media.
+                    getBitmap(context, imageUri);
+
+            ImageHelper.saveImageToInternal(selectedImage,getContext(),
+                    ImageHelper.HIKE_BANNER_FILE_TEMP_NAME);*/
+
+
         }
 
     }
 
-    private static class UpdateHikeAsyncTask extends AsyncTask<HikeDto, Void, Void> {
+    private static class UpdateHikeAsyncTask extends AsyncTask<Hike, Void, Void> {
 
         HikeDAO hikeDAO;
 
@@ -100,14 +118,14 @@ public class MyHikeRepository {
         }
 
         @Override
-        protected Void doInBackground(HikeDto... hikeDtos) {
-            hikeDAO.updateHike(hikeDtos[0]);
+        protected Void doInBackground(Hike... hikes) {
+            hikeDAO.updateHike(hikes[0]);
 
             return null;
         }
     }
 
-    private static class DeleteHikeAsyncTask extends AsyncTask<HikeDto, Void, Void> {
+    private static class DeleteHikeAsyncTask extends AsyncTask<Hike, Void, Void> {
 
         HikeDAO hikeDAO;
 
@@ -116,8 +134,8 @@ public class MyHikeRepository {
         }
 
         @Override
-        protected Void doInBackground(HikeDto... hikeDtos) {
-            hikeDAO.deleteHike(hikeDtos[0]);
+        protected Void doInBackground(Hike... hikes) {
+            hikeDAO.deleteHike(hikes[0]);
 /*
             MyDatabase.getInstance(context).hikeDAO().addHike(hikeDtos[0]);
             Properties.getInstance().getHikeDtoList().add(0, hikeDtos[0]);*/

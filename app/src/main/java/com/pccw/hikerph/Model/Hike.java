@@ -3,13 +3,11 @@ package com.pccw.hikerph.Model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Date;
-
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "hike")
-public class HikeDto implements Parcelable {
+public class Hike implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     private long id;
@@ -30,10 +28,9 @@ public class HikeDto implements Parcelable {
 
     private long profileId;
 
-
-    public HikeDto(String eventName, String mtName, String location, String startDate,
-                   String endDate, String tourGuide, Double estBudget, long elevation,
-                   long profileId, String path_banner, Long dtStartDate, Long dtEndDate) {
+    public Hike(String eventName, String mtName, String location, String startDate,
+                String endDate, String tourGuide, Double estBudget, long elevation,
+                long profileId, String path_banner, Long dtStartDate, Long dtEndDate) {
 
         this.eventName = eventName;
         this.mtName = mtName;
@@ -50,7 +47,7 @@ public class HikeDto implements Parcelable {
     }
 
 
-    protected HikeDto(Parcel in) {
+    protected Hike(Parcel in) {
 
         id = in.readLong();
         eventName = in.readString();
@@ -74,15 +71,15 @@ public class HikeDto implements Parcelable {
     }
 
 
-    public static final Creator<HikeDto> CREATOR = new Creator<HikeDto>() {
+    public static final Creator<Hike> CREATOR = new Creator<Hike>() {
         @Override
-        public HikeDto createFromParcel(Parcel in) {
-            return new HikeDto(in);
+        public Hike createFromParcel(Parcel in) {
+            return new Hike(in);
         }
 
         @Override
-        public HikeDto[] newArray(int size) {
-            return new HikeDto[size];
+        public Hike[] newArray(int size) {
+            return new Hike[size];
         }
     };
 

@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -16,10 +15,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.pccw.hikerph.Enum.RequestCode;
-import com.pccw.hikerph.Helper.ImageFilePath;
-import com.pccw.hikerph.Helper.Properties;
-import com.pccw.hikerph.Model.HikeDto;
+import com.pccw.hikerph.Utilities.ImageFilePath;
+import com.pccw.hikerph.Utilities.Properties;
+import com.pccw.hikerph.Model.Hike;
 import com.pccw.hikerph.Model.Profile;
 import com.pccw.hikerph.ViewModel.ParentActivity;
 
@@ -27,7 +27,6 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class EditHikeActivity extends ParentActivity implements View.OnClickListener {
@@ -53,11 +52,13 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
     Calendar calendar = Calendar.getInstance();
 
     Profile currentProfile = null;
-    HikeDto hikeDto;
+    Hike hike;
     int index_hike;
 
     Date _startDate = new Date();
     Date _endDate = new Date();
+
+    String pathBanner;
 
 
     @Override
@@ -79,9 +80,9 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
     private void initFields(){
 
         index_hike = (int)getIntent().getExtras().get("index_hike");
-        hikeDto = (HikeDto) getIntent().getParcelableExtra("hikeDto");
+        hike = (Hike) getIntent().getParcelableExtra("hikeDto");
 
-        System.out.println("aaaaa"+hikeDto.getPath_banner());
+        System.out.println("aaaaa"+ hike.getPath_banner());
         currentProfile = Properties.getInstance().getCurrentProfile();
         eventName = findViewById(R.id.etEventName);
         mtName = findViewById(R.id.etMountainName);
@@ -130,7 +131,8 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
             case R.id.btnNext_add_hike:
 
                 if(!validate()){
-                    Toast.makeText(this,"Please fill-up all fields.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,R.string.message_fill_all_fields,
+                            Toast.LENGTH_SHORT).show();
 
                 }
                 else{
@@ -169,14 +171,14 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
         String strTourGuide = tourGuide.getText().toString();
         Double dblEstBudget = Double.parseDouble(estBudget.getText().toString());
 
-        hikeDto.setEventName(strEventName);
-        hikeDto.setMtName(strMtName);
-        hikeDto.setLocation(strLocation);
-        hikeDto.setElevation(longElevation);
-        hikeDto.setStartDate(strStartDate);
-        hikeDto.setEndDate(strEndDate);
-        hikeDto.setTourGuide(strTourGuide);
-        hikeDto.setEstBudget(dblEstBudget);
+        hike.setEventName(strEventName);
+        hike.setMtName(strMtName);
+        hike.setLocation(strLocation);
+        hike.setElevation(longElevation);
+        hike.setStartDate(strStartDate);
+        hike.setEndDate(strEndDate);
+        hike.setTourGuide(strTourGuide);
+        hike.setEstBudget(dblEstBudget);
 
         Calendar startCal = Calendar.getInstance();
         Calendar endCal = Calendar.getInstance();
@@ -187,29 +189,30 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
             e.printStackTrace();
         }
 
-        hikeDto.setDtStartDate(startCal.getTimeInMillis());
-        hikeDto.setDtEndDate(endCal.getTimeInMillis());
+        hike.setDtStartDate(startCal.getTimeInMillis());
+        hike.setDtEndDate(endCal.getTimeInMillis());
 
         showEditItiFragment();
     }
 
     private void populateFields(){
 
-        eventName.setText(hikeDto.getEventName());
-        mtName.setText(hikeDto.getMtName());
-        location.setText(hikeDto.getLocation());
-        elevation.setText(""+ hikeDto.getElevation());
-        startDate.setText(hikeDto.getStartDate());
-        endDate.setText(hikeDto.getEndDate());
-        tourGuide.setText(hikeDto.getTourGuide());
-        estBudget.setText(hikeDto.getEstBudget().toString());
+        eventName.setText(hike.getEventName());
+        mtName.setText(hike.getMtName());
+        location.setText(hike.getLocation());
+        elevation.setText(""+ hike.getElevation());
+        startDate.setText(hike.getStartDate());
+        endDate.setText(hike.getEndDate());
+        tourGuide.setText(hike.getTourGuide());
+        estBudget.setText(hike.getEstBudget().toString());
 
-        if(hikeDto.getPath_banner() != null){
-            String path_banner = hikeDto.getPath_banner();
+        if(hike.getPath_banner() != null){
 
             Glide.with(this)
-                    .load(path_banner)
+                    .load( hike.getPath_banner())
                     .placeholder(R.drawable.mt_icon)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(imgBanner);
         }
 
@@ -266,7 +269,7 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
     private void showEditItiFragment() {
 
         Intent intent = new Intent(this, EditHikeItineraryActivity.class);
-        intent.putExtra("hikeDto", hikeDto);
+        intent.putExtra("hikeDto", hike);
         intent.putExtra("index_hike",index_hike);
 
         startActivityForResult(intent,2);
@@ -287,8 +290,7 @@ public class EditHikeActivity extends ParentActivity implements View.OnClickList
 
             Uri imageUri = data.getData();
 
-            String realPath = ImageFilePath.getPath(this, data.getData());
-            hikeDto.setPath_banner(realPath);
+            hike.setPath_banner(imageUri.toString());
 
             Glide.with(this)
                     .load(imageUri)

@@ -30,6 +30,9 @@
     <string name="message_empty_email">Email is required.</string>
     <string name="message_invalid_email">Invalid email format.</string>
 
+    <string name="message_create_account">Please create an account first.</string>
+    <string name="message_fill_all_fields">Please fill-up all fields.</string>
+
     <string name="message_no_record">No upcoming hike yet.</string>
 
     <string name="snack_message_hike_deleted">Hike Deleted.</string>
@@ -37,6 +40,9 @@
 
     <string name="profile_save_success">Your profile was saved successfully.</string>
     <string name="profile_update_success">Your profile was updated successfully.</string>
+
+    <string name="hike_save_success">Your hike was saved successfully.</string>
+    <string name="hike_update_success">Your hike was updated successfully.</string>
 
     <string-array name="gender">
         <item>Male</item>

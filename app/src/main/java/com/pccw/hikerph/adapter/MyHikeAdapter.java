@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.pccw.hikerph.Model.HikeDto;
+import com.pccw.hikerph.Model.Hike;
 import com.pccw.hikerph.R;
 
 import java.util.List;
@@ -19,9 +19,9 @@ public class MyHikeAdapter extends RecyclerView.Adapter<MyHikeAdapter.MyHikeView
     private static final String TAG = "MyHikeAdapter";
     private OnMyHikeEventClickListener onMyHikeEventClickListener;
 
-    private List<HikeDto> hikeList;
+    private List<Hike> hikeList;
 
-    public MyHikeAdapter(List<HikeDto> hikeList, OnMyHikeEventClickListener onMyHikeEventClickListener) {
+    public MyHikeAdapter(List<Hike> hikeList, OnMyHikeEventClickListener onMyHikeEventClickListener) {
         this.hikeList = hikeList;
         this.onMyHikeEventClickListener = onMyHikeEventClickListener;
     }
@@ -38,14 +38,14 @@ public class MyHikeAdapter extends RecyclerView.Adapter<MyHikeAdapter.MyHikeView
     @Override
     public void onBindViewHolder(@NonNull MyHikeViewHolder holder, int position) {
 
-        HikeDto hikeDto = hikeList.get(position);
+        Hike hike = hikeList.get(position);
 
-        holder.eventName.setText(hikeDto.getEventName());
-        holder.mtName.setText(hikeDto.getMtName());
-        holder.mtLocation.setText(hikeDto.getLocation());
-        holder.date.setText(hikeDto.getStartDate());
+        holder.eventName.setText(hike.getEventName());
+        holder.mtName.setText(hike.getMtName());
+        holder.mtLocation.setText(hike.getLocation());
+        holder.date.setText(hike.getStartDate());
 
-        System.out.println("Profile Banner - "+ hikeDto.getEventName()+" : "+hikeDto.getPath_banner());
+        System.out.println("Profile Banner - "+ hike.getEventName()+" : "+ hike.getPath_banner());
     }
 
     @Override

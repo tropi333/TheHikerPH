@@ -82,7 +82,7 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
             populateFields();
         }
         else{
-            testPopulate();
+//            testPopulate();
             Glide.with(this)
                     .load(R.drawable.profile)
                     .into(imageView);
@@ -93,10 +93,10 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
     private void testPopulate(){
         etEmail.setText("jomar");
-        etMotto.setText("");
+        etMotto.setText("sss");
         etContactNo.setText("05");
-        etFname.setText("ss");
-        etLname.setText("");
+        etFname.setText("first name");
+        etLname.setText("last name");
     }
     @Override
     public boolean onSupportNavigateUp() {
@@ -191,7 +191,6 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
     }
 
-
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -246,7 +245,6 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
                     .into(imageView);
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull
