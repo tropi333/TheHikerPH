@@ -7,13 +7,16 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +61,8 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
     DatePickerDialog picker;
 
+    ProgressBar progressBar;
+
     String path_profilePic;
     Bitmap selectedImage;
 
@@ -87,8 +92,6 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
                     .load(R.drawable.profile)
                     .into(imageView);
         }
-
-
     }
 
     private void testPopulate(){
@@ -98,6 +101,7 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
         etFname.setText("first name");
         etLname.setText("last name");
     }
+
     @Override
     public boolean onSupportNavigateUp() {
         finish();
@@ -123,6 +127,9 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
                 }
             }
         });
+
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
 
         imageView = findViewById(R.id.imgView_profile);
         etFname = findViewById(R.id.etFName_profile_create);
@@ -292,6 +299,18 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
     private void saveProfile() {
 
+        showProgressBar(true);
+
+        if(selectedImage !=null ) {
+            new SaveImageAsyncTAsk().execute();
+        }
+        else{
+            contSaveProfile();
+        }
+    }
+
+    private void contSaveProfile(){
+
         String fName = etFname.getText().toString();
         String lName = etLname.getText().toString();
         String gender = etGender.getText().toString();
@@ -299,12 +318,6 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
         String email = etEmail.getText().toString();
         String contactNo = etContactNo.getText().toString();
         String motto = etMotto.getText().toString();
-
-
-        if(selectedImage !=null ) {
-            path_profilePic = ImageHelper.saveImageToInternal(selectedImage, getApplicationContext(),
-                    ImageHelper.PROFILE_FILE_NAME);
-        }
 
         if (currentProfile == null) {
             currentProfile = new Profile(fName, "mName", lName, bday, email, contactNo, motto,
@@ -324,6 +337,8 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
             currentProfile.setProfilePic_bitMap(path_profilePic);
             profileViewModel.updateProfile(currentProfile);
         }
+
+        showProgressBar(false);
 
     }
 
@@ -393,5 +408,35 @@ public class ProfileCreateActivity extends ParentActivity implements View.OnClic
 
     }
 
+    private class SaveImageAsyncTAsk extends AsyncTask<Void, Void, Void>{
 
+        @Override
+        protected Void doInBackground(Void... voids) {
+            path_profilePic = ImageHelper.saveImageToInternal(selectedImage, getApplicationContext(),
+                    ImageHelper.PROFILE_FILE_NAME);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+
+            contSaveProfile();
+        }
+    }
+
+    private void showProgressBar(boolean isShown){
+
+        if(isShown){
+
+            progressBar.setVisibility(View.VISIBLE);
+            Properties.enableUiInteraction(this, false);
+
+        } else{
+
+            progressBar.setVisibility(View.INVISIBLE);
+            Properties.enableUiInteraction(this, true);
+
+        }
+    }
 }

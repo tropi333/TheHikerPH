@@ -3,6 +3,7 @@ package com.pccw.hikerph;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.pccw.hikerph.Model.Hike;
 import com.pccw.hikerph.Utilities.ImageHelper;
+import com.pccw.hikerph.Utilities.Properties;
 import com.pccw.hikerph.ViewModel.MyHikeViewModel;
 
 import java.io.IOException;
@@ -53,8 +55,7 @@ public class AddHikeItineraryFragment2 extends Fragment implements View.OnClickL
 
         initFields(view);
 
-//        initViewModel();
-
+        initViewModel();
         return  view;
     }
 
@@ -64,18 +65,16 @@ public class AddHikeItineraryFragment2 extends Fragment implements View.OnClickL
 
         editText = view.findViewById(R.id.editText_itinerary);
 
- /*       progressBar = view.findViewById(R.id.pbAddHike);
-        progressBar.setVisibility(View.INVISIBLE);*/
+        progressBar = view.findViewById(R.id.pbAddHike);
+        progressBar.setVisibility(View.INVISIBLE);
 
         btnSave = view.findViewById(R.id.btnSave_edit_hike_itinerary);
         btnSave.setOnClickListener(this);
         myHikeViewModel = ViewModelProviders.of(this).get(MyHikeViewModel.class);
-        initViewModel();
 
     }
 
     private void initViewModel(){
-
 
         myHikeViewModel.getAllHikes().observe(this, new Observer<List<Hike>>() {
             @Override
@@ -96,6 +95,7 @@ public class AddHikeItineraryFragment2 extends Fragment implements View.OnClickL
                     Toast.makeText(getContext(), R.string.hike_save_success,
                             Toast.LENGTH_SHORT).show();
 
+                    showProgressBar(false);
                     showMyHikes();
                 }
             }
@@ -110,6 +110,8 @@ public class AddHikeItineraryFragment2 extends Fragment implements View.OnClickL
     @Override
     public void onClick(View v) {
 
+        showProgressBar(true);
+
         hike.setItinerary(editText.getText().toString());
 
         if(hike.getPath_banner() != null)
@@ -120,20 +122,27 @@ public class AddHikeItineraryFragment2 extends Fragment implements View.OnClickL
 
     }
 
-    private void saveBanner(){
-        Uri uri = Uri.parse(hike.getPath_banner());
-        try {
-            Bitmap selectedImage = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(),
-                    uri);
-            long hikeId = lastHikeIndex + 1;
-            String filePath = hikeId + "" + ImageHelper.HIKE_BANNER_FILE_NAME;
-            String newDir = ImageHelper.saveImageToInternal(selectedImage, getContext(),filePath );
-            hike.setPath_banner(newDir);
+    private void showProgressBar(boolean isShown){
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(isShown){
+
+            progressBar.setVisibility(View.VISIBLE);
+            Properties.enableUiInteraction(getActivity(), false);
+
+        } else{
+
+            progressBar.setVisibility(View.INVISIBLE);
+            Properties.enableUiInteraction(getActivity(), true);
+
         }
     }
+
+    private void saveBanner(){
+        
+        new SaveImageAsyncTask().execute();
+
+    }
+
 
     private void showMyHikes(){
 
@@ -141,4 +150,29 @@ public class AddHikeItineraryFragment2 extends Fragment implements View.OnClickL
 
     }
 
+    private class SaveImageAsyncTask extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            Uri uri = Uri.parse(hike.getPath_banner());
+            try {
+                Bitmap selectedImage = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(),
+                        uri);
+                long hikeId = lastHikeIndex + 1;
+                String filePath = hikeId + "" + ImageHelper.HIKE_BANNER_FILE_NAME;
+                String newDir = ImageHelper.saveImageToInternal(selectedImage, getContext(),filePath );
+                hike.setPath_banner(newDir);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return  null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+
+        }
+    }
 }

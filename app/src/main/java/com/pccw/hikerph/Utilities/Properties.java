@@ -1,5 +1,8 @@
 package com.pccw.hikerph.Utilities;
 
+import android.app.Activity;
+import android.view.WindowManager;
+
 import com.pccw.hikerph.Model.Hike;
 import com.pccw.hikerph.Model.Profile;
 
@@ -31,6 +34,18 @@ public class Properties {
 
     private List<Hike> hikeList;
 
+
+    public static void enableUiInteraction(Activity activity, boolean isEnable){
+
+        if(isEnable){
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+        }else{
+
+            activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        }
+    }
 
     public static Properties getInstance() {
         if (instance == null) {

@@ -136,9 +136,7 @@ public class MyHikeRepository {
         @Override
         protected Void doInBackground(Hike... hikes) {
             hikeDAO.deleteHike(hikes[0]);
-/*
-            MyDatabase.getInstance(context).hikeDAO().addHike(hikeDtos[0]);
-            Properties.getInstance().getHikeDtoList().add(0, hikeDtos[0]);*/
+
             return null;
         }
     }

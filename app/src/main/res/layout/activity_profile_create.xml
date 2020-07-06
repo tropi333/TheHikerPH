@@ -6,6 +6,33 @@
     android:layout_height="match_parent"
     tools:context=".ProfileCreateActivity">
 
+    <Button
+        android:id="@+id/btnSave_profile_create"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/rounded_button"
+        android:text="Save"
+        android:textColor="#FAF5F5"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnBrowse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/rounded_button"
+        android:text="@string/btn__image_brows"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintStart_toEndOf="@+id/imgView_profile"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
@@ -81,44 +108,27 @@
             android:paddingStart="5dp" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btnSave_profile_create"
-        android:layout_width="0dp"
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/rounded_button"
-        android:text="Save"
-        android:textColor="#FAF5F5"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/imgView_profile"
         android:layout_width="150dp"
         android:layout_height="150dp"
+        android:layout_margin="5dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:padding="5dp"
         android:scaleType="centerCrop"
-        app:layout_constraintStart_toStartOf="parent"
         app:civ_border_width="3dp"
-        android:layout_margin="5dp"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
-    <Button
-        android:id="@+id/btnBrowse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:background="@drawable/rounded_button"
-        android:text="@string/btn__image_brows"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintStart_toEndOf="@+id/imgView_profile"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

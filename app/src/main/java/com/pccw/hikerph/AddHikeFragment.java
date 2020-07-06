@@ -5,13 +5,17 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,11 +27,13 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.pccw.hikerph.Enum.RequestCode;
-import com.pccw.hikerph.Helper.ImageFilePath;
-import com.pccw.hikerph.Model.HikeDto;
+import com.pccw.hikerph.Model.Hike;
 import com.pccw.hikerph.Model.Profile;
-import com.pccw.hikerph.Helper.Properties;
+import com.pccw.hikerph.Utilities.ImageHelper;
+import com.pccw.hikerph.Utilities.Properties;
+import com.pccw.hikerph.ViewModel.MyHikeViewModel;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -66,7 +72,10 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
     Date _startDate = new Date();
     Date _endDate = new Date();
 
-    private String path_banner = "";
+    private String path_banner;
+    Uri selectedURI;
+
+    MyHikeViewModel hikeViewModel;
 
     public AddHikeFragment() {
         // Required empty public constructor
@@ -123,11 +132,12 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
 
 //        initFields_test();
     }
-/*
+
     private void initFields_test() {
-        eventName.setText("wew");
-        mtName.setText("wew");
-        location.setText("wew");
+        eventName.setText("Event Name");
+        mtName.setText("Mt Name");
+        location.setText("My Location" +
+                "");
         elevation.setText("222");
         tourGuide.setText("2s22");
         estBudget.setText("222");
@@ -136,7 +146,7 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
         _startDate = new Date();
         _endDate = new Date();
 
-    }*/
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull
@@ -159,13 +169,15 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.btnNext_add_hike:
 
-                if (Properties.getInstance().getCurrentProfile() == null) {
+                if (currentProfile == null) {
 
-                    Toast.makeText(getContext(), "Please create your account first.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.message_create_account,
+                            Toast.LENGTH_SHORT).show();
 
                 } else if (!validate()) {
 
-                    Toast.makeText(getContext(), "Please fill-up all fields.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.message_fill_all_fields,
+                            Toast.LENGTH_SHORT).show();
 
                 } else {
                     createModel();
@@ -203,19 +215,7 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
 
             Uri imageUri = data.getData();
 
-            String realPath = ImageFilePath.getPath(getContext(), data.getData());
-            path_banner = realPath;
-
-            Glide.with(this)
-                    .load(imageUri)
-                    .into(imgBanner);
-        } else if (requestCode == RequestCode.SELECT_PIC_GALLERY.getCode()
-                && resultCode == RESULT_OK) {
-
-            Uri imageUri = data.getData();
-
-            String realPath = ImageFilePath.getPath(getContext(), data.getData());
-            path_banner = realPath;
+            selectedURI = imageUri;
 
             Glide.with(this)
                     .load(imageUri)
@@ -244,12 +244,15 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
             e.printStackTrace();
         }
 
+        path_banner = selectedURI == null ? null: selectedURI.toString();
+
         if (currentProfile != null) {
 
-            HikeDto hikeDto = new HikeDto(strEventName, strMtName, strLocation, strStartDate, strEndDate, strTourGuide
+            Hike hike = new Hike(strEventName, strMtName, strLocation, strStartDate, strEndDate, strTourGuide
                     , dblEstBudget, longElevation, currentProfile.getId(), path_banner, startCal.getTimeInMillis(),endCal.getTimeInMillis() );
 
-            showAddItiFragment(hikeDto);
+
+            showAddItiFragment(hike);
 
         } else {
             Toast.makeText(getContext(), "Please create your profile first.", Toast.LENGTH_SHORT).show();
@@ -257,21 +260,19 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
 
     }
 
-    private void showAddItiFragment(HikeDto hikeDto) {
+    private void showAddItiFragment(Hike hike) {
 
         AddHikeItineraryFragment2 nextFragment = new AddHikeItineraryFragment2();
         Bundle bundle = new Bundle();
-        bundle.putParcelable("hikeDto", hikeDto);
-
+        bundle.putParcelable("hikeDto", hike);
         nextFragment.setArguments(bundle);
 
         getActivity().getSupportFragmentManager().beginTransaction().show(nextFragment)
                 .replace(R.id.fragment_container, nextFragment, "addHikeItineraryFragment2")
                 .addToBackStack(null)
                 .commit();
-
-
     }
+
 
 
     private void showDatePicker(final boolean isStartDate) {
@@ -282,7 +283,6 @@ public class AddHikeFragment extends Fragment implements View.OnClickListener {
 
         long current_date = Calendar.getInstance().getTimeInMillis();
 
-        // date picker dialog
         picker = new DatePickerDialog(getContext(),
 
                 new DatePickerDialog.OnDateSetListener() {

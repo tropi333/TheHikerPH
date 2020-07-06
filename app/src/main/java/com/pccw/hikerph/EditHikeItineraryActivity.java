@@ -7,12 +7,14 @@ import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.pccw.hikerph.Model.Hike;
@@ -30,7 +32,10 @@ public class EditHikeItineraryActivity extends AppCompatActivity implements View
     Button btnSave;
     Hike hike = null;
     int index_hike;
+
     EditText editText;
+
+    ProgressBar progressBar;
 
     private MyHikeViewModel myHikeViewModel;
 
@@ -58,6 +63,9 @@ public class EditHikeItineraryActivity extends AppCompatActivity implements View
 
     private void initFields(){
 
+        progressBar = findViewById(R.id.pbEditHike);
+        progressBar.setVisibility(View.INVISIBLE);
+
         hike = getIntent().getParcelableExtra("hikeDto");
         index_hike = (int)getIntent().getExtras().get("index_hike");
         editText = findViewById(R.id.editText_itinerary);
@@ -69,6 +77,8 @@ public class EditHikeItineraryActivity extends AppCompatActivity implements View
 
     @Override
     public void onClick(View view) {
+
+        showProgressBar(true);
 
         hike.setItinerary(editText.getText().toString());
 
@@ -82,26 +92,16 @@ public class EditHikeItineraryActivity extends AppCompatActivity implements View
             public void onChanged(List<Hike> hikes) {
                 Toast.makeText(getApplicationContext(),R.string.hike_update_success,
                         Toast.LENGTH_SHORT).show();
+
+                showProgressBar(false);
+
                 close();
             }
         });
     }
 
     private void saveBanner(){
-
-        Uri uri = Uri.parse(hike.getPath_banner());
-        try {
-            Bitmap selectedImage = MediaStore.Images.Media.getBitmap(getContentResolver(),
-                    uri);
-            long hikeId = hike.getId();
-            String filePath = hikeId + "" + ImageHelper.HIKE_BANNER_FILE_NAME;
-            String newDir = ImageHelper.saveImageToInternal(selectedImage, this,filePath );
-            hike.setPath_banner(newDir);
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new SaveImageAsyncTask().execute();
     }
 
     private void populateFields(){
@@ -126,4 +126,48 @@ public class EditHikeItineraryActivity extends AppCompatActivity implements View
         super.onBackPressed();
     }
 
+    private void showProgressBar(boolean isShown){
+
+        if(isShown){
+
+            progressBar.setVisibility(View.VISIBLE);
+            Properties.enableUiInteraction(this, false);
+
+        } else{
+
+            progressBar.setVisibility(View.INVISIBLE);
+            Properties.enableUiInteraction(this, true);
+
+        }
+    }
+
+    private class SaveImageAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+
+            Uri uri = Uri.parse(hike.getPath_banner());
+            try {
+                Bitmap selectedImage = MediaStore.Images.Media.getBitmap(getContentResolver(),
+                        uri);
+                long hikeId = hike.getId();
+                String filePath = hikeId + "" + ImageHelper.HIKE_BANNER_FILE_NAME;
+                String newDir = ImageHelper.saveImageToInternal(selectedImage, getApplicationContext()
+                        ,filePath );
+                hike.setPath_banner(newDir);
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return  null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+
+        }
+    }
 }
